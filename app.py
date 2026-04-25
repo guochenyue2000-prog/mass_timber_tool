@@ -85,25 +85,17 @@ BEAM_GRADES: dict[str, list[str]] = {
 # ---------------------------------------------------------------------------
 def _show_check_row(label: str, demand: float, capacity: float,
                     util: float, passed: bool, unit: str = "") -> None:
-    c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-    c1.write(label)
-    c2.write(f"{demand:.2f} {unit}")
-    c3.write(f"{capacity:.2f} {unit}")
-    if passed:
-        c4.success(f"{util:.3f}  PASS")
-    else:
-        c4.error(f"{util:.3f}  FAIL")
+    st.markdown(f"**{label}**")
+    status = f"✅ {util:.3f}  PASS" if passed else f"❌ {util:.3f}  FAIL"
+    st.markdown(f"Demand: `{demand:.2f} {unit}` &nbsp;|&nbsp; Capacity: `{capacity:.2f} {unit}` &nbsp;|&nbsp; {status}")
+    st.markdown("")
 
 
 def _show_defl_row(label: str, delta: float, limit: float, passed: bool) -> None:
-    c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-    c1.write(label)
-    c2.write(f"{delta:.2f} mm")
-    c3.write(f"{limit:.2f} mm")
-    if passed:
-        c4.success("PASS")
-    else:
-        c4.error("FAIL")
+    st.markdown(f"**{label}**")
+    status = "✅ PASS" if passed else "❌ FAIL"
+    st.markdown(f"Deflection: `{delta:.2f} mm` &nbsp;|&nbsp; Limit: `{limit:.2f} mm` &nbsp;|&nbsp; {status}")
+    st.markdown("")
 
 
 def _beam_detail(br: BeamCheckResult) -> None:
@@ -139,8 +131,6 @@ def _beam_detail(br: BeamCheckResult) -> None:
 
     # ULS checks
     st.markdown("#### ULS — Ultimate Limit State")
-    c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-    c1.markdown("**Check**"); c2.markdown("**Demand**"); c3.markdown("**Capacity**"); c4.markdown("**Utilization**")
 
     _show_check_row(
         "Bending  Mf / Mr",
@@ -159,8 +149,6 @@ def _beam_detail(br: BeamCheckResult) -> None:
 
     # SLS checks
     st.markdown("#### SLS — Serviceability Limit State (Deflections)")
-    c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-    c1.markdown("**Check**"); c2.markdown("**Deflection**"); c3.markdown("**Limit**"); c4.markdown("**Status**")
 
     _show_defl_row(
         f"Live load  (L/360 = {beam_span_mm/360:.1f} mm)",
@@ -430,9 +418,6 @@ elif "all_panel_results" in st.session_state and st.session_state.get("all_panel
             st.divider()
 
             st.markdown("#### ULS — Ultimate Limit State")
-            c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-            c1.markdown("**Check**"); c2.markdown("**Demand**"); c3.markdown("**Capacity**"); c4.markdown("**Utilization**")
-
             _show_check_row("Bending  Mf / Mr", pr.Mf, pr.Mr, pr.bending_utilization, pr.bending_pass, "kN·m/m")
             _show_check_row("Shear  Vf / Vr",   pr.Vf, pr.Vr, pr.shear_utilization,   pr.shear_pass,   "kN/m")
 
@@ -440,8 +425,6 @@ elif "all_panel_results" in st.session_state and st.session_state.get("all_panel
 
             span_mm = fl.span * 1000.0
             st.markdown("#### SLS — Serviceability Limit State (Deflections)")
-            c1, c2, c3, c4 = st.columns([3, 2, 2, 2])
-            c1.markdown("**Check**"); c2.markdown("**Deflection**"); c3.markdown("**Limit**"); c4.markdown("**Status**")
 
             _show_defl_row(f"Live load  (L/360 = {span_mm/360:.1f} mm)",         pr.delta_live,          span_mm / 360.0, pr.deflection_L360_pass)
             _show_defl_row(f"Total inst. D+L  (L/240 = {span_mm/240:.1f} mm)",   pr.delta_instantaneous, span_mm / 240.0, pr.deflection_L240_pass)
